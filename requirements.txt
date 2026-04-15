@@ -1,0 +1,7 @@
+crewai
+crewai_tools
+langchain-anthropic
+python-dotenv
+requests
+beautifulsoup4
+pymupdf
