@@ -47,6 +47,26 @@ cover_letter_reader    = FileReadTool(file_path="outputs/cover_letter.md")
 #   0.4 — creative prose (cover letter writer)
 
 def _llm(model: str, temperature: float = 0.0) -> LLM:
+    """
+    Returns an LLM instance pointed at either Anthropic or a local Ollama server,
+    depending on the LLM_PROVIDER environment variable.
+
+    LLM_PROVIDER=anthropic (default) → uses Anthropic API with the given model name
+    LLM_PROVIDER=ollama              → uses local Ollama OpenAI-compatible endpoint;
+                                       ignores the model arg and uses OLLAMA_MODEL instead
+    """
+    provider = os.getenv("LLM_PROVIDER", "anthropic").lower()
+
+    if provider == "ollama":
+        ollama_model = os.getenv("OLLAMA_MODEL", "llama3.2")
+        return LLM(
+            model=f"openai/{ollama_model}",
+            base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1"),
+            api_key="ollama",
+            temperature=temperature,
+        )
+
+    # Default: Anthropic
     return LLM(
         model=f"anthropic/{model}",
         temperature=temperature,
